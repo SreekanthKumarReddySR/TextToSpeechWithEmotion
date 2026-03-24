@@ -5,4 +5,3 @@ __pycache__/
 storage/audio/*.wav
 storage/audio/*.mp3
 storage/storyboards/*.png
-docs/images/*.png
