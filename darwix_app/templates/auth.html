@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darwix AI Studio</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="auth-page">
+    <main class="auth-shell">
+        <section class="brand-panel">
+            <div class="mini-logo" aria-hidden="true">
+                <span class="logo-text">T</span>
+                <span class="logo-arrow"></span>
+                <span class="logo-bars">
+                    <i></i><i></i><i></i>
+                </span>
+            </div>
+            <p class="eyebrow">Assignment Suite</p>
+            <h1>Darwix Voice and Storyboard Studio</h1>
+            <p class="lede">
+                Build empathetic AI speech and turn narratives into visual storyboards from one polished Flask application.
+            </p>
+            <div class="feature-list">
+                <div>Emotion-aware TTS with pitch, rate, volume, and voice control</div>
+                <div>Gemini-assisted prompt engineering and storyboard creation</div>
+                <div>Login and signup backed by MongoDB</div>
+            </div>
+        </section>
+
+        <section class="auth-card">
+            <div class="tabs">
+                <button class="tab is-active" data-target="login-form" type="button">Login</button>
+                <button class="tab" data-target="signup-form" type="button">Sign Up</button>
+            </div>
+
+            <form id="login-form" class="auth-form">
+                <h2>Welcome back</h2>
+                <label>Email</label>
+                <input type="email" name="email" required>
+                <label>Password</label>
+                <input type="password" name="password" required>
+                <button type="submit" class="primary-btn">Login</button>
+            </form>
+
+            <form id="signup-form" class="auth-form hidden">
+                <h2>Create account</h2>
+                <label>Name</label>
+                <input type="text" name="name" required>
+                <label>Email</label>
+                <input type="email" name="email" required>
+                <label>Password</label>
+                <input type="password" name="password" required>
+                <button type="submit" class="primary-btn">Sign Up</button>
+            </form>
+
+            <p id="auth-status" class="status-line">Sign in to use both assignment challenges.</p>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='auth.js') }}"></script>
+</body>
+</html>

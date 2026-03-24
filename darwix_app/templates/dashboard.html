@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darwix AI Studio</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="dashboard-page">
+    <header class="topbar">
+        <div class="brand-row">
+            <div class="mini-logo" aria-hidden="true">
+                <span class="logo-text">T</span>
+                <span class="logo-arrow"></span>
+                <span class="logo-bars"><i></i><i></i><i></i></span>
+            </div>
+            <div>
+                <p class="eyebrow">Darwix Assignment</p>
+                <h1>AI Studio Dashboard</h1>
+            </div>
+        </div>
+        <div class="user-box">
+            <span>{{ user.name }}</span>
+            <a href="{{ url_for('web.logout') }}">Logout</a>
+        </div>
+    </header>
+
+    <main class="dashboard">
+        <section class="hero-card">
+            <div>
+                <p class="eyebrow">Two Challenges, One Product</p>
+                <h2>Empathetic speech and visual storytelling</h2>
+                <p class="lede">
+                    Generate expressive audio for customer-facing text, then transform long-form narrative into a styled storyboard.
+                </p>
+            </div>
+            <div id="global-loader" class="processing hidden">
+                <div class="mini-logo is-animated" aria-hidden="true">
+                    <span class="logo-text">T</span>
+                    <span class="logo-arrow"></span>
+                    <span class="logo-bars"><i></i><i></i><i></i></span>
+                </div>
+                <span>Processing request...</span>
+            </div>
+        </section>
+
+        <section class="grid-layout">
+            <article class="panel">
+                <div class="panel-head">
+                    <div>
+                        <p class="eyebrow">Challenge 1</p>
+                        <h3>The Empathy Engine</h3>
+                    </div>
+                    <span class="chip">Gemini + Edge TTS</span>
+                </div>
+
+                <form id="tts-form" class="stack">
+                    <label>Text input</label>
+                    <textarea name="text" rows="7" placeholder="Example: I understand your frustration, and I am going to stay with you until we fix this issue."></textarea>
+
+                    <div class="inline-grid">
+                        <div>
+                            <label>Voice type</label>
+                            <select id="gender-select" name="gender">
+                                <option value="female">Female</option>
+                                <option value="male">Male</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Voice</label>
+                            <select id="voice-select" name="voice_id"></select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="primary-btn">Generate Empathetic Audio</button>
+                </form>
+
+                <p id="tts-status" class="status-line">Ready to generate expressive speech.</p>
+
+                <section id="tts-result" class="result hidden">
+                    <div class="stats">
+                        <article><h4>Emotion</h4><p id="emotion-value">-</p></article>
+                        <article><h4>Intensity</h4><p id="intensity-value">-</p></article>
+                        <article><h4>Pitch</h4><p id="pitch-value">-</p></article>
+                        <article><h4>Rate</h4><p id="rate-value">-</p></article>
+                    </div>
+                    <div class="notes">
+                        <p><strong>Volume:</strong> <span id="volume-value"></span></p>
+                        <p><strong>Voice mapping:</strong> <span id="mapping-reason"></span></p>
+                        <p><strong>Analysis:</strong> <span id="analysis-reason"></span></p>
+                        <p><strong>Provider:</strong> <span id="analysis-provider"></span></p>
+                    </div>
+                    <audio id="audio-player" controls></audio>
+                </section>
+            </article>
+
+            <article class="panel">
+                <div class="panel-head">
+                    <div>
+                        <p class="eyebrow">Challenge 2</p>
+                        <h3>The Pitch Visualizer</h3>
+                    </div>
+                    <span class="chip">Storyboard Generator</span>
+                </div>
+
+                <form id="story-form" class="stack">
+                    <label>Narrative input</label>
+                    <textarea name="narrative" rows="7" placeholder="Paste a customer success narrative with 3 to 5 sentences."></textarea>
+
+                    <div>
+                        <label>Visual style</label>
+                        <select name="style">
+                            <option value="cinematic digital art">Cinematic Digital Art</option>
+                            <option value="photorealistic corporate storyboard">Photorealistic Corporate</option>
+                            <option value="clean product illustration">Clean Product Illustration</option>
+                            <option value="graphic novel storyboard">Graphic Novel</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="primary-btn">Generate Storyboard</button>
+                </form>
+
+                <p id="story-status" class="status-line">Ready to create storyboard panels.</p>
+
+                <section id="story-result" class="story-grid hidden"></section>
+            </article>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
