@@ -55,6 +55,7 @@ ttsForm.addEventListener("submit", async (event) => {
         document.getElementById("mapping-reason").textContent = data.mapping_reason;
         document.getElementById("analysis-reason").textContent = data.analysis_reason;
         document.getElementById("analysis-provider").textContent = data.analysis_provider;
+        document.getElementById("tts-provider").textContent = data.tts_provider;
         document.getElementById("audio-player").src = data.audio_url;
         result.classList.remove("hidden");
         status.textContent = "Audio generated successfully.";
@@ -90,10 +91,14 @@ storyForm.addEventListener("submit", async (event) => {
                 <div class="story-image-wrap">
                     <img src="${panel.image_url}" alt="Storyboard panel ${index + 1}">
                 </div>
-                <h4>Scene ${index + 1}</h4>
-                <p><strong>Caption:</strong> ${panel.caption}</p>
-                <p><strong>Prompt:</strong> ${panel.prompt}</p>
-                <p><strong>Source:</strong> ${panel.source}</p>
+                <div class="story-meta">
+                    <div>
+                        <h4>Scene ${index + 1}</h4>
+                        <span class="story-source">${panel.source}</span>
+                    </div>
+                    <p><strong>Caption:</strong> ${panel.caption}</p>
+                    <p><strong>Prompt:</strong> ${panel.prompt}</p>
+                </div>
             </article>
         `).join("");
         result.classList.remove("hidden");

@@ -7,33 +7,31 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body class="dashboard-page">
-    <header class="topbar">
-        <div class="brand-row">
-            <div class="mini-logo" aria-hidden="true">
-                <span class="logo-text">T</span>
-                <span class="logo-arrow"></span>
-                <span class="logo-bars"><i></i><i></i><i></i></span>
-            </div>
+    <div class="app-shell">
+        <aside class="sidebar">
             <div>
+                <div class="mini-logo" aria-hidden="true">
+                    <span class="logo-text">T</span>
+                    <span class="logo-arrow"></span>
+                    <span class="logo-bars"><i></i><i></i><i></i></span>
+                </div>
                 <p class="eyebrow">Darwix Assignment</p>
-                <h1>AI Studio Dashboard</h1>
+                <h1 class="sidebar-title">AI Studio Dashboard</h1>
+                <p class="sidebar-copy">A focused workspace for empathetic speech and narrative-to-storyboard generation.</p>
             </div>
-        </div>
-        <div class="user-box">
-            <span>{{ user.name }}</span>
-            <a href="{{ url_for('web.logout') }}">Logout</a>
-        </div>
-    </header>
 
-    <main class="dashboard">
-        <section class="hero-card">
-            <div>
-                <p class="eyebrow">Two Challenges, One Product</p>
-                <h2>Empathetic speech and visual storytelling</h2>
-                <p class="lede">
-                    Generate expressive audio for customer-facing text, then transform long-form narrative into a styled storyboard.
-                </p>
+            <nav class="sidebar-nav">
+                <a href="#challenge-1" class="nav-link is-active">Challenge 1: Empathy Engine</a>
+                <a href="#challenge-2" class="nav-link">Challenge 2: Pitch Visualizer</a>
+            </nav>
+
+            <div class="sidebar-card">
+                <p class="eyebrow">Signed In</p>
+                <strong>{{ user.name }}</strong>
+                <span>{{ user.email }}</span>
+                <a href="{{ url_for('web.logout') }}">Logout</a>
             </div>
+
             <div id="global-loader" class="processing hidden">
                 <div class="mini-logo is-animated" aria-hidden="true">
                     <span class="logo-text">T</span>
@@ -42,16 +40,26 @@
                 </div>
                 <span>Processing request...</span>
             </div>
-        </section>
+        </aside>
 
-        <section class="grid-layout">
-            <article class="panel">
+        <main class="workspace">
+            <section class="hero-card">
+                <div>
+                    <p class="eyebrow">Two Challenges, One Product</p>
+                    <h2>Empathetic speech and visual storytelling</h2>
+                    <p class="lede">
+                        Generate expressive audio for customer-facing text, then transform long-form narrative into a styled storyboard.
+                    </p>
+                </div>
+            </section>
+
+            <article class="panel" id="challenge-1">
                 <div class="panel-head">
                     <div>
                         <p class="eyebrow">Challenge 1</p>
                         <h3>The Empathy Engine</h3>
                     </div>
-                    <span class="chip">Gemini + Edge TTS</span>
+                    <span class="chip">Gemini + Hybrid TTS</span>
                 </div>
 
                 <form id="tts-form" class="stack">
@@ -88,13 +96,14 @@
                         <p><strong>Volume:</strong> <span id="volume-value"></span></p>
                         <p><strong>Voice mapping:</strong> <span id="mapping-reason"></span></p>
                         <p><strong>Analysis:</strong> <span id="analysis-reason"></span></p>
-                        <p><strong>Provider:</strong> <span id="analysis-provider"></span></p>
+                        <p><strong>Analysis provider:</strong> <span id="analysis-provider"></span></p>
+                        <p><strong>TTS provider:</strong> <span id="tts-provider"></span></p>
                     </div>
                     <audio id="audio-player" controls></audio>
                 </section>
             </article>
 
-            <article class="panel">
+            <article class="panel" id="challenge-2">
                 <div class="panel-head">
                     <div>
                         <p class="eyebrow">Challenge 2</p>
@@ -121,11 +130,10 @@
                 </form>
 
                 <p id="story-status" class="status-line">Ready to create storyboard panels.</p>
-
                 <section id="story-result" class="story-grid hidden"></section>
             </article>
-        </section>
-    </main>
+        </main>
+    </div>
 
     <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
