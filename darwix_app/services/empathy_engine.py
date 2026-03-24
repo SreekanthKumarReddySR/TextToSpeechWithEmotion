@@ -48,14 +48,14 @@ class EmpathyEngine:
     def _scale_percent(value: str, strength: float) -> str:
         sign = "+" if value.startswith("+") else "-"
         amount = float(value[1:-1])
-        scaled = round(amount * max(strength, 0.35), 1)
+        scaled = max(0, round(amount * max(strength, 0.35)))
         return f"{sign}{scaled}%"
 
     @staticmethod
     def _scale_hz(value: str, strength: float) -> str:
         sign = "+" if value.startswith("+") else "-"
         amount = float(value[1:-2])
-        scaled = round(amount * max(strength, 0.35), 1)
+        scaled = max(0, round(amount * max(strength, 0.35)))
         return f"{sign}{scaled}Hz"
 
     def synthesize(self, text: str, filename_root: str, voice_id: str | None, gender: str | None) -> dict:
