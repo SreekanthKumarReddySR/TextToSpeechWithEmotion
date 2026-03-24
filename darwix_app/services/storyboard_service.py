@@ -45,7 +45,11 @@ class StoryboardService:
         segments = self.segment_narrative(narrative)
         prompts = self.enhance_prompts(segments=segments, style=style)
         panels = [self.generate_panel(caption=item["caption"], prompt=item["prompt"]) for item in prompts]
-        return {"style": style, "segments": segments, "panels": [panel.__dict__ for panel in panels]}
+        return {
+            "style": style,
+            "segments": segments,
+            "panels": [panel.__dict__ for panel in panels],
+        }
 
     def segment_narrative(self, narrative: str) -> list[str]:
         sentences = [part.strip() for part in re.split(r"(?<=[.!?])\s+", narrative.strip()) if part.strip()]
@@ -64,10 +68,11 @@ class StoryboardService:
             client = genai.Client(api_key=self.api_key)
             joined = "\n".join(f"{index + 1}. {segment}" for index, segment in enumerate(segments))
             prompt = (
-                "You are creating a storyboard for a narrative. "
+                "You are creating a visual storyboard from a narrative. "
                 "Return JSON only with a panels array. "
-                "For each segment, preserve the meaning in caption and write a richer visual prompt. "
-                "Keep all prompts stylistically consistent and cinematic.\n\n"
+                "For each segment, keep the caption concise and produce a highly visual, cinematic image prompt. "
+                "Prefer photorealistic detail, shallow depth of field, realistic textures, human presence where appropriate, and continuity across panels. "
+                "Never mention text overlays, labels, captions, posters, collage, split screens, or graphic design layouts in the prompt.\n\n"
                 f"Style: {style}\n"
                 f"Segments:\n{joined}"
             )
@@ -77,7 +82,7 @@ class StoryboardService:
                 config={
                     "response_mime_type": "application/json",
                     "response_schema": PANEL_SCHEMA,
-                    "temperature": 0.6,
+                    "temperature": 0.55,
                 },
             )
             data = json.loads(response.text)
@@ -97,31 +102,39 @@ class StoryboardService:
                 raise ValueError("Image generation key unavailable")
 
             client = genai.Client(api_key=self.api_key)
-            response = client.models.generate_content(
-                model=self.image_model,
-                contents=prompt,
-                config=types.GenerateContentConfig(response_modalities=["TEXT", "IMAGE"]),
-            )
-
-            image_saved = False
-            for candidate in getattr(response, "candidates", []) or []:
-                for part in getattr(candidate.content, "parts", []) or []:
-                    inline = getattr(part, "inline_data", None)
-                    if inline and getattr(inline, "data", None):
-                        data = inline.data
-                        if isinstance(data, str):
-                            data = data.encode("utf-8")
-                        image = Image.open(BytesIO(data))
+            if self.image_model.startswith("imagen-"):
+                response = client.models.generate_images(
+                    model=self.image_model,
+                    prompt=prompt,
+                    config=types.GenerateImagesConfig(
+                        number_of_images=1,
+                        aspect_ratio="16:9",
+                        person_generation="allow_adult",
+                    ),
+                )
+                generated = getattr(response, "generated_images", None) or []
+                if not generated:
+                    raise ValueError("Imagen returned no images")
+                image_bytes = generated[0].image.image_bytes
+                Image.open(BytesIO(image_bytes)).save(output_path)
+                source = "imagen"
+            else:
+                response = client.models.generate_content(
+                    model=self.image_model,
+                    contents=[prompt],
+                )
+                image_saved = False
+                for part in getattr(response, "parts", []) or []:
+                    if getattr(part, "inline_data", None) is not None:
+                        image = part.as_image()
                         image.save(output_path)
                         image_saved = True
                         break
-                if image_saved:
-                    break
+                if not image_saved:
+                    raise ValueError("Gemini image bytes not found")
+                source = "gemini image"
 
-            if not image_saved:
-                raise ValueError("Gemini image bytes not found")
-
-            return StoryPanel(caption=caption, prompt=prompt, image_filename=filename, source="gemini")
+            return StoryPanel(caption=caption, prompt=prompt, image_filename=filename, source=source)
         except Exception:
             self._create_placeholder_image(output_path=output_path, caption=caption, prompt=prompt)
             return StoryPanel(caption=caption, prompt=prompt, image_filename=filename, source="illustrated fallback")
@@ -130,21 +143,24 @@ class StoryboardService:
     def _fallback_prompt(segment: str, style: str) -> dict[str, str]:
         return {
             "caption": segment,
-            "prompt": f"{style} storyboard panel, cinematic composition, visualizing: {segment}",
+            "prompt": (
+                f"{style}, photorealistic cinematic still, detailed environment, human presence where relevant, "
+                f"storyboard panel visualizing: {segment}"
+            ),
         }
 
     @staticmethod
     def _create_placeholder_image(output_path: Path, caption: str, prompt: str):
-        width, height = 1024, 768
+        width, height = 1280, 720
         palette = {
-            "bg_top": "#3c2e2b",
-            "bg_bottom": "#d8b187",
-            "card": "#f8efe3",
-            "line": "#a47a54",
+            "bg_top": "#2d211e",
+            "bg_bottom": "#b88e63",
+            "frame": "#f5eadb",
+            "frame_line": "#a1754f",
             "gold": "#ba8d33",
             "gold_dark": "#7b5a18",
-            "fabric": "#59453d",
-            "fabric_shadow": "#3b2d28",
+            "fabric": "#5b463d",
+            "fabric_shadow": "#3a2c27",
             "skin": "#d8b49a",
             "paper": "#efe0c8",
             "ink": "#2f241f",
@@ -152,7 +168,6 @@ class StoryboardService:
 
         image = Image.new("RGB", (width, height), palette["bg_bottom"])
         draw = ImageDraw.Draw(image)
-
         for y in range(height):
             blend = y / height
             color = StoryboardService._mix_hex(palette["bg_top"], palette["bg_bottom"], blend)
@@ -160,12 +175,13 @@ class StoryboardService:
 
         glow = Image.new("RGBA", (width, height), (0, 0, 0, 0))
         glow_draw = ImageDraw.Draw(glow)
-        glow_draw.ellipse((120, 60, 880, 680), fill=(255, 214, 150, 70))
-        glow = glow.filter(ImageFilter.GaussianBlur(36))
+        glow_draw.ellipse((120, 60, 1160, 660), fill=(255, 221, 168, 60))
+        glow = glow.filter(ImageFilter.GaussianBlur(42))
         image = Image.alpha_composite(image.convert("RGBA"), glow).convert("RGB")
         draw = ImageDraw.Draw(image)
 
-        draw.rounded_rectangle((54, 48, 970, 714), radius=34, fill=palette["card"], outline=palette["line"], width=4)
+        draw.rounded_rectangle((56, 44, 1224, 676), radius=34, fill=palette["frame"], outline=palette["frame_line"], width=4)
+        draw.rounded_rectangle((90, 84, 1190, 640), radius=26, fill="#fbf4eb", outline=palette["frame_line"], width=3)
 
         text = f"{caption} {prompt}".lower()
         if "key" in text:
@@ -178,49 +194,48 @@ class StoryboardService:
             StoryboardService._draw_memory_scene(draw, palette)
 
         title_font = ImageFont.load_default()
-        label = caption[:88]
-        draw.rounded_rectangle((86, 78, 538, 126), radius=18, fill="#fff7ee", outline=palette["line"], width=2)
-        draw.text((104, 94), label, fill=palette["ink"], font=title_font)
+        draw.rounded_rectangle((118, 106, 640, 150), radius=16, fill="#fff8f0", outline=palette["frame_line"], width=2)
+        draw.text((136, 120), caption[:92], fill=palette["ink"], font=title_font)
         image.save(output_path)
 
     @staticmethod
     def _draw_key_scene(draw: ImageDraw.ImageDraw, palette: dict[str, str]):
-        draw.ellipse((130, 150, 410, 460), fill=palette["skin"], outline=None)
-        draw.polygon([(120, 420), (270, 520), (360, 365), (260, 245)], fill=palette["skin"])
-        draw.rounded_rectangle((515, 160, 860, 575), radius=38, fill=palette["fabric"], outline=palette["fabric_shadow"], width=4)
-        draw.polygon([(515, 215), (660, 132), (860, 132), (860, 250)], fill="#6e574d")
-        draw.rounded_rectangle((612, 300, 828, 500), radius=22, outline="#8e7466", width=4)
-        draw.line((612, 360, 828, 360), fill="#8e7466", width=4)
-        draw.ellipse((360, 250, 480, 370), fill=palette["gold"], outline=palette["gold_dark"], width=5)
-        draw.ellipse((395, 285, 445, 335), fill=palette["card"], outline=palette["gold_dark"], width=3)
-        draw.rounded_rectangle((455, 300, 670, 322), radius=10, fill=palette["gold"], outline=palette["gold_dark"], width=4)
-        draw.rectangle((630, 288, 655, 335), fill=palette["gold"], outline=palette["gold_dark"])
-        draw.rectangle((654, 300, 678, 335), fill=palette["gold"], outline=palette["gold_dark"])
-        draw.rectangle((677, 288, 700, 335), fill=palette["gold"], outline=palette["gold_dark"])
+        draw.ellipse((150, 155, 470, 500), fill=palette["skin"])
+        draw.polygon([(155, 455), (305, 585), (410, 392), (286, 258)], fill=palette["skin"])
+        draw.rounded_rectangle((650, 130, 1030, 560), radius=42, fill=palette["fabric"], outline=palette["fabric_shadow"], width=5)
+        draw.polygon([(650, 195), (820, 104), (1030, 104), (1030, 258)], fill="#6a554b")
+        draw.rounded_rectangle((760, 300, 998, 520), radius=24, outline="#8f7566", width=4)
+        draw.line((760, 368, 998, 368), fill="#8f7566", width=4)
+        draw.ellipse((452, 262, 602, 412), fill=palette["gold"], outline=palette["gold_dark"], width=6)
+        draw.ellipse((494, 304, 560, 370), fill="#f6edde", outline=palette["gold_dark"], width=4)
+        draw.rounded_rectangle((588, 325, 860, 350), radius=10, fill=palette["gold"], outline=palette["gold_dark"], width=4)
+        draw.rectangle((812, 309, 842, 364), fill=palette["gold"], outline=palette["gold_dark"])
+        draw.rectangle((841, 325, 868, 364), fill=palette["gold"], outline=palette["gold_dark"])
+        draw.rectangle((867, 309, 894, 364), fill=palette["gold"], outline=palette["gold_dark"])
 
     @staticmethod
     def _draw_door_scene(draw: ImageDraw.ImageDraw, palette: dict[str, str]):
-        draw.rectangle((140, 160, 884, 612), fill="#dbc4a7")
-        draw.rounded_rectangle((360, 138, 668, 620), radius=14, fill="#6a4738", outline="#3b241b", width=6)
-        draw.rounded_rectangle((392, 184, 636, 574), radius=10, outline="#8d6754", width=4)
-        draw.ellipse((598, 362, 626, 390), fill=palette["gold"], outline=palette["gold_dark"], width=3)
-        draw.ellipse((220, 210, 488, 510), fill=(255, 227, 165))
+        draw.rectangle((135, 158, 1125, 594), fill="#d8c0a4")
+        draw.rounded_rectangle((420, 126, 770, 618), radius=16, fill="#6a4738", outline="#3b241b", width=6)
+        draw.rounded_rectangle((456, 182, 734, 576), radius=10, outline="#8d6754", width=4)
+        draw.ellipse((686, 370, 718, 402), fill=palette["gold"], outline=palette["gold_dark"], width=3)
+        draw.ellipse((230, 220, 570, 540), fill=(255, 230, 176))
 
     @staticmethod
     def _draw_letter_scene(draw: ImageDraw.ImageDraw, palette: dict[str, str]):
-        draw.rounded_rectangle((180, 176, 842, 590), radius=30, fill="#7b604f", outline="#4e382d", width=5)
-        draw.rounded_rectangle((230, 206, 790, 548), radius=22, fill=palette["paper"], outline="#b89773", width=3)
+        draw.rounded_rectangle((220, 174, 1060, 580), radius=30, fill="#7b604f", outline="#4e382d", width=5)
+        draw.rounded_rectangle((278, 206, 1006, 540), radius=22, fill=palette["paper"], outline="#b89773", width=3)
         for offset in range(0, 230, 32):
-            draw.line((280, 272 + offset, 742, 272 + offset), fill="#bda07f", width=3)
-        draw.polygon([(230, 206), (510, 382), (790, 206)], fill="#f6ead7", outline="#b89773")
+            draw.line((340, 276 + offset, 946, 276 + offset), fill="#bda07f", width=3)
+        draw.polygon([(278, 206), (642, 392), (1006, 206)], fill="#f6ead7", outline="#b89773")
 
     @staticmethod
     def _draw_memory_scene(draw: ImageDraw.ImageDraw, palette: dict[str, str]):
-        draw.ellipse((210, 154, 824, 640), fill="#d9bea1", outline="#b18d67", width=4)
-        draw.rounded_rectangle((292, 210, 744, 566), radius=26, fill="#f9f2e9", outline="#b18d67", width=4)
-        draw.line((340, 300, 696, 300), fill="#c5a27d", width=4)
-        draw.line((340, 360, 696, 360), fill="#c5a27d", width=4)
-        draw.line((340, 420, 630, 420), fill="#c5a27d", width=4)
+        draw.ellipse((245, 155, 1025, 610), fill="#d9bea1", outline="#b18d67", width=4)
+        draw.rounded_rectangle((360, 225, 910, 565), radius=28, fill="#f9f2e9", outline="#b18d67", width=4)
+        draw.line((418, 318, 850, 318), fill="#c5a27d", width=4)
+        draw.line((418, 388, 850, 388), fill="#c5a27d", width=4)
+        draw.line((418, 456, 770, 456), fill="#c5a27d", width=4)
 
     @staticmethod
     def _mix_hex(start: str, end: str, amount: float) -> str:

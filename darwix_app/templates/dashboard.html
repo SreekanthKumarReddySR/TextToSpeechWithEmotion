@@ -48,7 +48,7 @@
                     <p class="eyebrow">Two Challenges, One Product</p>
                     <h2>Empathetic speech and visual storytelling</h2>
                     <p class="lede">
-                        Generate expressive audio for customer-facing text, then transform long-form narrative into a styled storyboard.
+                        Generate expressive audio for customer-facing text, then transform long-form narrative into a cinematic storyboard gallery.
                     </p>
                 </div>
             </section>
@@ -109,20 +109,20 @@
                         <p class="eyebrow">Challenge 2</p>
                         <h3>The Pitch Visualizer</h3>
                     </div>
-                    <span class="chip">Storyboard Generator</span>
+                    <span class="chip">Cinematic Storyboard</span>
                 </div>
 
                 <form id="story-form" class="stack">
                     <label>Narrative input</label>
-                    <textarea name="narrative" rows="7" placeholder="Paste a customer success narrative with 3 to 5 sentences."></textarea>
+                    <textarea name="narrative" rows="7" placeholder="Paste a narrative with at least 3 scene-worthy beats."></textarea>
 
                     <div>
                         <label>Visual style</label>
                         <select name="style">
-                            <option value="cinematic digital art">Cinematic Digital Art</option>
-                            <option value="photorealistic corporate storyboard">Photorealistic Corporate</option>
-                            <option value="clean product illustration">Clean Product Illustration</option>
-                            <option value="graphic novel storyboard">Graphic Novel</option>
+                            <option value="cinematic photorealism with warm nostalgic lighting">Cinematic Photorealism</option>
+                            <option value="moody period drama still photography">Moody Period Drama</option>
+                            <option value="clean premium editorial photography">Premium Editorial</option>
+                            <option value="graphic novel storyboard with rich detail">Graphic Novel Storyboard</option>
                         </select>
                     </div>
 
@@ -130,7 +130,24 @@
                 </form>
 
                 <p id="story-status" class="status-line">Ready to create storyboard panels.</p>
-                <section id="story-result" class="story-grid hidden"></section>
+
+                <section id="story-result" class="storyboard-board hidden">
+                    <div class="story-stage marble-stage">
+                        <div class="story-ornament ornament-top-left"></div>
+                        <div class="story-ornament ornament-top-right"></div>
+                        <div class="story-ornament ornament-bottom-left"></div>
+                        <div class="story-ornament ornament-bottom-right"></div>
+
+                        <button id="story-prev" class="story-nav prev" type="button" aria-label="Previous slide">&#10094;</button>
+                        <div class="story-viewport">
+                            <div id="story-track" class="story-track"></div>
+                        </div>
+                        <button id="story-next" class="story-nav next" type="button" aria-label="Next slide">&#10095;</button>
+                    </div>
+
+                    <div id="story-caption" class="story-caption-panel"></div>
+                    <div id="story-thumbs" class="story-thumbs"></div>
+                </section>
             </article>
         </main>
     </div>
