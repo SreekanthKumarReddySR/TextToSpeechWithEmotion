@@ -10,6 +10,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 
+def env_flag(name: str, default: bool) -> bool:
+    return os.getenv(name, str(default)).strip().lower() in {"1", "true", "yes", "on"}
+
+
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
@@ -17,5 +21,6 @@ class Config:
     GEMINI_IMAGE_MODEL = os.getenv("GEMINI_IMAGE_MODEL", "imagen-4.0-generate-001")
     MONGO_URI = os.getenv("MONGO_URI", "")
     MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "darwix_assignment")
+    ENABLE_LOCAL_TTS_FALLBACK = env_flag("ENABLE_LOCAL_TTS_FALLBACK", default=not bool(os.getenv("RENDER")))
     AUDIO_DIR = BASE_DIR / "storage" / "audio"
     IMAGE_DIR = BASE_DIR / "storage" / "storyboards"

@@ -18,9 +18,10 @@ VOICE_OPTIONS = [
 
 
 class TextToSpeechService:
-    def __init__(self, output_dir: Path):
+    def __init__(self, output_dir: Path, enable_local_fallback: bool):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.enable_local_fallback = enable_local_fallback
 
     @staticmethod
     def list_voices():
@@ -74,7 +75,14 @@ class TextToSpeechService:
         try:
             asyncio.run(self._save_edge(text=text, profile=profile, output_path=edge_path))
             return edge_path, "edge-tts"
-        except Exception:
+        except Exception as edge_error:
+            if not self.enable_local_fallback:
+                raise RuntimeError(
+                    "Edge TTS failed and local fallback is disabled in production. "
+                    "Set ENABLE_LOCAL_TTS_FALLBACK=true only on environments where pyttsx3/eSpeak is installed. "
+                    f"Original error: {edge_error}"
+                ) from edge_error
+
             local_path = self.output_dir / f"{filename_root}.wav"
             self._save_local(text=text, profile=profile, output_path=local_path)
             return local_path, "pyttsx3"

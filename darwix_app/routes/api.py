@@ -18,6 +18,7 @@ def current_engine() -> EmpathyEngine:
         api_key=current_app.config["GEMINI_API_KEY"],
         model_name=current_app.config["GEMINI_MODEL"],
         output_dir=current_app.config["AUDIO_DIR"],
+        enable_local_tts_fallback=current_app.config["ENABLE_LOCAL_TTS_FALLBACK"],
     )
 
 

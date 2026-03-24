@@ -8,9 +8,12 @@ from darwix_app.services.tts_service import TextToSpeechService
 
 
 class EmpathyEngine:
-    def __init__(self, api_key: str, model_name: str, output_dir: Path):
+    def __init__(self, api_key: str, model_name: str, output_dir: Path, enable_local_tts_fallback: bool):
         self.emotion_service = GeminiEmotionService(api_key=api_key, model_name=model_name)
-        self.tts_service = TextToSpeechService(output_dir=output_dir)
+        self.tts_service = TextToSpeechService(
+            output_dir=output_dir,
+            enable_local_fallback=enable_local_tts_fallback,
+        )
 
     def build_voice_profile(self, emotion: str, intensity: float, voice_id: str | None, gender: str | None) -> VoiceProfile:
         strength = max(0.0, min(intensity, 1.0))
