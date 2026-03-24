@@ -133,9 +133,23 @@ flowchart LR
 
 ### Sample I/P -> O/P
 
-| Input | Flow | Output |
-|---|---|---|
-| **Challenge 1 Input**  \nText: `I found an old brass key in the pocket of my grandfather's coat, its surface worn smooth by time. It had been tucked away for decades, never used, never explained. Curious, I searched the house for a lock it might fit-under floorboards, behind picture frames, even in the attic. Finally, I discovered a small wooden box hidden in the wall, its lid sealed with wax. Inside was a letter, a photograph, and a promise I never knew I'd inherit.`  \nVoice Type: `Female`  \nVoice: `Female - Aria` | `Input Text` -> `Gemini Emotion Analysis` -> `Voice Mapping` -> `Hybrid TTS` -> `Audio Result` | **Challenge 1 Output**  \nEmotion: `surprised`  \nIntensity: `0.85`  \nPitch: `+18.7Hz`  \nRate: `+11.9%`  \nVolume: `+6.8%`  \nAnalysis Provider: `gemini`  \nTTS Provider: `pyttsx3`  \nResult: `Playable emotional audio clip` |
+<table>
+  <tr>
+    <td align="center" width="44%">
+      <strong>Challenge 1 Input</strong><br/><br/>
+      <img src="docs/images/ch1-input.png" alt="Challenge 1 input" width="100%"/>
+    </td>
+    <td align="center" width="12%">
+      <strong>Flow</strong><br/><br/>
+      <span style="font-size: 34px;">&#10142;</span><br/>
+      <code>Text -> Emotion -> Voice -> Audio</code>
+    </td>
+    <td align="center" width="44%">
+      <strong>Challenge 1 Output</strong><br/><br/>
+      <img src="docs/images/ch1-output.png" alt="Challenge 1 output" width="100%"/>
+    </td>
+  </tr>
+</table>
 
 ## Challenge 2: The Pitch Visualizer
 
@@ -166,19 +180,23 @@ flowchart LR
 
 ### Sample I/P -> O/P
 
-| Input | Flow | Output |
-|---|---|---|
-| **Challenge 2 Input**  \nNarrative: `"You ruined my career, I was supposed to be an executive director," she thought to herself. The little angel held her finger tightly and she forgot everything; A mother was born.`  \nVisual Style: `Graphic Novel Storyboard` | `Narrative Input` -> `Scene Segmentation` -> `Gemini Prompt Refinement` -> `Image Generation` -> `Storyboard Board UI` | **Challenge 2 Output**  \nScene 1: emotionally intense opening frame  \nScene 2: intimate close-up of the child holding her finger  \nScene 3: transformation into motherhood and emotional release  \nPresentation: `Marble-slate storyboard board with left/right slide navigation and animated thumbnails`  \nExpected Visual Quality: `cinematic, expressive, photo-rich or high-quality storyboard imagery` |
-
-**Manually Intended Visual Reference For Challenge 2 Output**
-
-The desired output style is not a flat placeholder card. It should look like a strong Gemini-generated cinematic panel sequence, for example:
-
-- Panel 1: a dramatic emotional portrait capturing the line `"You ruined my career"` with tension and introspection
-- Panel 2: a tender close-up of the baby's hand holding her finger, soft light, emotional warmth
-- Panel 3: a transformation shot showing the emotional shift from ambition and loss toward motherhood and acceptance
-
-The storyboard should appear one panel at a time on the decorative board, with smooth left/right transitions and a thumbnail strip for scene navigation.
+<table>
+  <tr>
+    <td align="center" width="44%">
+      <strong>Challenge 2 Input</strong><br/><br/>
+      <img src="docs/images/ch2-input.png" alt="Challenge 2 input" width="100%"/>
+    </td>
+    <td align="center" width="12%">
+      <strong>Flow</strong><br/><br/>
+      <span style="font-size: 34px;">&#10142;</span><br/>
+      <code>Narrative -> Scenes -> Prompts -> Images</code>
+    </td>
+    <td align="center" width="44%">
+      <strong>Challenge 2 Output</strong><br/><br/>
+      <img src="docs/images/ch2-output.png" alt="Challenge 2 output" width="100%"/>
+    </td>
+  </tr>
+</table>
 
 ## API overview
 
